@@ -18,7 +18,7 @@ a full Ubuntu XFCE desktop streamed to the browser over a single HTTP port.
    domain's target port. The entrypoint exports `CUSTOM_PORT="${PORT:-3000}"`.
 3. **It bakes the healthcheck exemption at build time.** The whole server sits
    behind basic auth once a password is set, so the unauthenticated probe needs
-   one exempt location. `/railway-healthz` is patched into
+   one exempt location. `/healthz` is patched into
    `/defaults/default.conf` in a build layer, with a `grep` assertion, so an
    upstream change to that file fails the build rather than silently shipping a
    template whose healthcheck cannot pass.

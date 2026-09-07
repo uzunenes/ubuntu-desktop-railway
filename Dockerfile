@@ -21,8 +21,8 @@ ENV CUSTOM_USER=admin \
 # behind basic auth once a password is set, so the probe needs one exempt location.
 # Patched into the shipped template at BUILD time -- the alternative is a sed inside a
 # start command, which is re-run against a moving upstream file on every boot.
-RUN sed -i 's|^  listen \[::\]:3000 default_server;|  listen [::]:3000 default_server;\n  location = /railway-healthz { auth_basic off; return 200 "ok"; }|' /defaults/default.conf \
- && grep -q 'railway-healthz' /defaults/default.conf
+RUN sed -i 's|^  listen \[::\]:3000 default_server;|  listen [::]:3000 default_server;\n  location = /healthz { auth_basic off; return 200 "ok"; }|' /defaults/default.conf \
+ && grep -q 'healthz' /defaults/default.conf
 
 COPY railway-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
 RUN chmod +x /usr/local/bin/railway-entrypoint.sh
