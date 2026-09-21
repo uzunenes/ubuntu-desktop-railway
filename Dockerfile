@@ -10,12 +10,19 @@ FROM linuxserver/webtop@sha256:1bd141d5d7aaf3e98e47b7d9665f50657d1628617b4ef47bc
 # Literals a template variable cannot carry: Railway drops a literal defaultValue at
 # templateGenerate time and republishes it as a blank REQUIRED field, so these are baked
 # into the image instead of published on the deploy form.
+#
+# SELKIES_JPEG_QUALITY overrides the pinned selkies commit's default of 40, which is only
+# used while the screen is actively changing (idle frames already get a quality-90
+# "paint-over"), producing visibly blocky/blurry video during any motion. 80 is a still-
+# CPU-friendly middle ground for this software-encoded (no GPU on Railway) deployment; set
+# a Railway service variable of the same name to override it per-deploy.
 ENV CUSTOM_USER=admin \
     TITLE="Ubuntu Desktop" \
     PUID=1000 \
     PGID=1000 \
     TZ=Etc/UTC \
-    START_DOCKER=false
+    START_DOCKER=false \
+    SELKIES_JPEG_QUALITY=80
 
 # Railway's HTTP healthcheck is an unauthenticated request, and the whole server is
 # behind basic auth once a password is set, so the probe needs one exempt location.
