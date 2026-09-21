@@ -24,8 +24,26 @@ ENV CUSTOM_USER=admin \
 RUN sed -i 's|^  listen \[::\]:3000 default_server;|  listen [::]:3000 default_server;\n  location = /healthz { auth_basic off; return 200 "ok"; }|' /defaults/default.conf \
  && grep -q 'healthz' /defaults/default.conf
 
+# The selkies commit this image pins (348bc4f6, 2026-08-05) predates upstream's own fix
+# for a reconnect race: on disconnect it tears the display down immediately, so a client
+# that reconnects in that same instant re-registers with width=0/height=0 until its next
+# SETTINGS message. If a reconfiguration lands in that window, the computed display size
+# is zero, the reconfiguration aborts, and the client is stuck on "Waiting for stream"
+# until a full page reload. This backports a grace period so a quick reconnect reclaims
+# the existing display entry instead of racing a fresh, dimensionless one.
+COPY patches/fix_reconnect_teardown_race.py /tmp/fix_reconnect_teardown_race.py
+RUN /lsiopy/bin/python3 /tmp/fix_reconnect_teardown_race.py && rm /tmp/fix_reconnect_teardown_race.py
+
 COPY railway-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
 RUN chmod +x /usr/local/bin/railway-entrypoint.sh
+
+# svc-selkies only (re)creates the "output"/"input" PulseAudio null-sinks when
+# /dev/shm/audio.lock is absent (linuxserver/docker-baseimage-selkies issue #191). A stale
+# lock left over at boot silently skips sink creation, so pcmflux never finds
+# "output.monitor" and the desktop has no audio. /custom-cont-init.d is the officially
+# supported hook that runs, as root, before services start on every boot.
+COPY custom-cont-init.d/00-clear-stale-audio-lock.sh /custom-cont-init.d/00-clear-stale-audio-lock.sh
+RUN chmod +x /custom-cont-init.d/00-clear-stale-audio-lock.sh
 
 # Railway mounts the volume as uid 0 and the image's own init-adduser repairs /config
 # for PUID/PGID, which it can only do as root. Making root the last USER instruction
