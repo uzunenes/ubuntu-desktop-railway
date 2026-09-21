@@ -24,5 +24,5 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ghcr.io/bon5co/ubuntu-desktop-railway:2026.09.07
-            ghcr.io/bon5co/ubuntu-desktop-railway:latest
+            ghcr.io/uzunenes/ubuntu-desktop-railway:latest
+            ghcr.io/uzunenes/ubuntu-desktop-railway:${{ github.sha }}
