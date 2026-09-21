@@ -24,6 +24,19 @@ race entirely, mirroring upstream's own fix.
 import glob
 import sys
 
+# selkies-project/selkies later split this monolith into websockets_mode.py
+# and, in that same refactor, added its own RECONNECT_GRACE_S fix for this
+# exact bug (see selkies-project/selkies@2.0.0rc1). If the pinned base image
+# ever moves to a release built on that layout, this old-layout patch has
+# nothing to apply and would otherwise hard-fail the build for no reason --
+# skip instead of erroring.
+if glob.glob("/lsiopy/lib/python3.*/site-packages/selkies/websockets_mode.py"):
+    print(
+        "[fix_reconnect_teardown_race] found websockets_mode.py: this selkies release "
+        "already ships its own reconnect grace period (RECONNECT_GRACE_S). Skipping."
+    )
+    sys.exit(0)
+
 CANDIDATES = glob.glob("/lsiopy/lib/python3.*/site-packages/selkies/selkies.py")
 if len(CANDIDATES) != 1:
     sys.exit(
