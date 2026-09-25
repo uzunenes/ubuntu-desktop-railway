@@ -5,7 +5,7 @@
 # non-empty string, so a deploy that leaves the variable blank serves a full
 # root-capable XFCE session -- HTTP and the /websocket control channel alike --
 # to anyone who loads the URL. This image refuses to start instead.
-FROM linuxserver/webtop@sha256:1bd141d5d7aaf3e98e47b7d9665f50657d1628617b4ef47bc3bbd43d726fd77e
+FROM lscr.io/linuxserver/webtop:ubuntu-xfce
 
 # Literals a template variable cannot carry: Railway drops a literal defaultValue at
 # templateGenerate time and republishes it as a blank REQUIRED field, so these are baked
